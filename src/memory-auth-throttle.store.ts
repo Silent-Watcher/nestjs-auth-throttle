@@ -4,6 +4,7 @@ import type {
   AuthThrottleStoreEntry,
 } from './auth-throttle.store.js';
 import type { AuthThrottleClock } from './auth-throttle.types.js';
+import { systemClock } from './auth-throttle.clock.js';
 import { InvalidAuthThrottleConfigError } from './auth-throttle.errors.js';
 
 export interface MemoryAuthThrottleStoreOptions {
@@ -57,7 +58,7 @@ export class MemoryAuthThrottleStore implements AuthThrottleStore {
     if (!Number.isInteger(sweepEvery) || sweepEvery < 1) {
       throw new InvalidAuthThrottleConfigError('sweepEvery must be a positive integer.');
     }
-    this.clock = options.clock ?? { now: () => Date.now() };
+    this.clock = options.clock ?? systemClock;
     this.maxEntries = maxEntries;
     this.sweepEvery = sweepEvery;
   }

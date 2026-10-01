@@ -1,4 +1,5 @@
 import { Module, type DynamicModule, type Provider } from '@nestjs/common';
+import { systemClock } from './auth-throttle.clock.js';
 import { InvalidAuthThrottleConfigError } from './auth-throttle.errors.js';
 import type {
   AuthThrottleModuleAsyncOptions,
@@ -14,8 +15,6 @@ import {
 } from './auth-throttle.tokens.js';
 import type { AuthThrottleClock } from './auth-throttle.types.js';
 import { MemoryAuthThrottleStore } from './memory-auth-throttle.store.js';
-
-const systemClock: AuthThrottleClock = { now: () => Date.now() };
 
 /**
  * Wires the service, store and clock. Configuration is validated when the
