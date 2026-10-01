@@ -50,3 +50,17 @@ export interface AuthThrottleBlocked {
 
 /** Result of `check`, `recordFailure`, `recordSuccess` and `getStatus`. */
 export type AuthThrottleResult = AuthThrottleAllowed | AuthThrottleBlocked;
+
+/** Detailed, read-only view returned by `getStatus`. */
+export interface AuthThrottleStatus {
+  readonly state: 'allowed' | AuthThrottleBlockReason;
+  /** Failures currently counted (inside the window, or in the active lockout). */
+  readonly failedAttempts: number;
+  readonly remainingAttempts: number;
+  /** The policy's attempt limit for this action. */
+  readonly maxAttempts: number;
+  /** Seconds until the block ends (rounded up); `0` when allowed. */
+  readonly retryAfter: number;
+  /** Epoch milliseconds at which the block ends; absent when allowed. */
+  readonly blockedUntil?: number;
+}
