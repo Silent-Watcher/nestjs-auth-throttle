@@ -40,6 +40,11 @@ export {
 export { AuthThrottleService } from './auth-throttle.service.js';
 export { AuthThrottleModule } from './auth-throttle.module.js';
 export {
+  AuthThrottleGuard,
+  AuthThrottle,
+  type AuthThrottleGuardOptions,
+} from './auth-throttle.guard.js';
+export {
   MemoryAuthThrottleStore,
   type MemoryAuthThrottleStoreOptions,
 } from './memory-auth-throttle.store.js';
