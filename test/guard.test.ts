@@ -1,9 +1,11 @@
-import { HttpException, type ExecutionContext } from '@nestjs/common';
+import { Controller as NestController, HttpException, Post, UseGuards, type ExecutionContext } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
+import { Test } from '@nestjs/testing';
 import { describe, expect, it } from 'vitest';
 import {
   AuthThrottle,
   AuthThrottleGuard,
+  AuthThrottleModule,
   AuthThrottleService,
   AuthThrottleStoreError,
   InvalidThrottleKeyError,
@@ -167,5 +169,37 @@ describe('AuthThrottleGuard', () => {
     await service.recordFailure({ action: 'mfa', key: 'user:9' });
     const ctx = { ...context(Guarded.prototype.handler, {}), getClass: () => Guarded } as ExecutionContext;
     await expect(guard.canActivate(ctx)).rejects.toBeInstanceOf(HttpException);
+  });
+});
+
+describe('AuthThrottleGuard dependency injection', () => {
+  it('is resolved by Nest for @UseGuards in a module that imports AuthThrottleModule', async () => {
+    @NestController('auth')
+    class AuthController {
+      @Post('login')
+      @UseGuards(AuthThrottleGuard)
+      @AuthThrottle({ action: 'login', key: () => 'user:1' })
+      login(): string {
+        return 'ok';
+      }
+    }
+    const ref = await Test.createTestingModule({
+      imports: [AuthThrottleModule.forRoot({ defaultPolicy: { maxAttempts: 1 } })],
+      controllers: [AuthController],
+    }).compile();
+
+    // compile() instantiates the controller's guards, so a missing Reflector or
+    // AuthThrottleService provider would have thrown above.
+    expect(ref.get(AuthController)).toBeInstanceOf(AuthController);
+  });
+
+  it('can be registered as a provider and injected', async () => {
+    const ref = await Test.createTestingModule({
+      imports: [AuthThrottleModule.forRoot({ defaultPolicy: { maxAttempts: 1 } })],
+      providers: [AuthThrottleGuard],
+    }).compile();
+    const guard = ref.get(AuthThrottleGuard);
+    await ref.get(AuthThrottleService).recordFailure({ action: 'login', key: 'user:1' });
+    await expect(guard.canActivate(context(Controller.prototype.login, request))).rejects.toBeInstanceOf(HttpException);
   });
 });
