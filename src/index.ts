@@ -37,3 +37,10 @@ export {
   InvalidThrottleKeyError,
   InvalidThrottlePolicyError,
 } from './auth-throttle.errors.js';
+export { AuthThrottleService } from './auth-throttle.service.js';
+export { AuthThrottleModule } from './auth-throttle.module.js';
+export {
+  MemoryAuthThrottleStore,
+  type MemoryAuthThrottleStoreOptions,
+} from './memory-auth-throttle.store.js';
+export type { AuthThrottleStatus } from './auth-throttle.types.js';
